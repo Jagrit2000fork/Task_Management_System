@@ -1,20 +1,23 @@
 import React, { useState } from 'react'
 import './style.css'
 import axios from 'axios'
+import { Navigate, useNavigate,Link } from 'react-router-dom'
 function Login() {
   const [values,setValues] = useState({
     email:'',
-    pasword:''
+    password:''
   })
+  const navigate=useNavigate();
   const [error,setError] = useState('');
   const [message,setMessage]=useState('');
+  axios.defaults.withCredentials=true;
   const handleSubmit= (event)=>{
     event.preventDefault();
     axios.post('http://localhost:8081/login',values)
     .then(res => {
       if(res.data.Status==="Success")
       {
-            setMessage("Login Successful");
+            navigate('/');
       }
       else
       {
@@ -44,8 +47,9 @@ function Login() {
                         <input type="password" placeholder='Enter Password' name='password'
                         onChange={e => setValues({...values, password: e.target.value})}  className='form-control rounded-0' />
                     </div>
-                    <button onClick={() => {console.log("Budhiraja")}} type='submit' className='btn btn-success w-100 rounded-0'> Log in</button>
+                    <button  type='submit' className='btn btn-success w-100 rounded-0'> Log in</button>
                 </form>
+                <p> Don't have an account? <Link to="/signup">Register here</Link></p>
             </div>
         </div>
   )
