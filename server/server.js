@@ -17,7 +17,7 @@ app.use(express.json());
 const con=mysql.createConnection({
     host:"localhost",
     user: "root",
-    password:"Iw@nt2die",
+    password:"",
     database:"users"
 })
 
@@ -51,8 +51,9 @@ const verifyUser= (req,res,next)=>{
     }
 }
 app.get('/',verifyUser,(req,res)=>{
- const sql="SELECT * FROM task";
- con.query(sql,(err,result)=>{
+ const id=req.Userid;
+ const sql="SELECT * FROM task WHERE UserId=?";
+ con.query(sql,[id],(err,result)=>{
     if(err) return res.json({Message:"Error inside Server"});
     const responseData = {
         name: req.name, // Add the name property from req
@@ -64,8 +65,9 @@ app.get('/',verifyUser,(req,res)=>{
 });
 app.post('/task',verifyUser,(req,res)=>{
     const id=req.Userid;
-    const sql='INSERT INTO task VALUES (default,?,default)';
-    const values=[req.body.name,req.body.description,req.body.status];
+    console.log(id);
+    const sql='INSERT INTO task VALUES (default,?)';
+    const values=[req.body.name,req.body.description,req.body.status,id];
     con.query(sql,[values],(err,result)=>{
         if(err) return res.json(err);
         return res.json(result);

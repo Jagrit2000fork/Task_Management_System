@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import './style.css'
 import axios from 'axios'
 import { Navigate, useNavigate,Link } from 'react-router-dom'
@@ -11,6 +11,16 @@ function Login() {
   const [error,setError] = useState('');
   const [message,setMessage]=useState('');
   axios.defaults.withCredentials=true;
+  useEffect(()=>{
+    axios.get('http://localhost:8081/')
+    .then(res => {
+       if(res.data.Status=== "Success")
+       {
+          navigate('/');
+       }
+   })
+    .catch(err => console.log(err));
+},[])
   const handleSubmit= (event)=>{
     event.preventDefault();
     axios.post('http://localhost:8081/login',values)
