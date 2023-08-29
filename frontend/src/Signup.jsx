@@ -9,12 +9,19 @@ function Signup() {
         password: ""
     });
     const navigate=useNavigate();
+    const [message,setMessage]=useState("");
+    axios.defaults.withCredentials=true;
     useEffect(()=>{
                 axios.get('http://localhost:8081/')
                 .then(res => {
                    if(res.data.Status=== "Success")
                    {
-                      navigate('/');
+                     console.log("Enter Sandman");
+                     navigate('/');
+                   }
+                   else
+                   {
+                    //console.log("Nothing else matters");
                    }
                })
                 .catch(err => console.log(err));
@@ -23,7 +30,9 @@ function Signup() {
         event.preventDefault();
         axios.post('http://localhost:8081/signup', values)
             .then((res) => {
-                console.log(res);
+                if(res.data.Status==="Already")
+                setMessage("This user already exists");
+                else
                 navigate('/login');
             }
 
@@ -35,6 +44,7 @@ function Signup() {
     <div className='d-flex justify-content-center  bg-light align-items-center vh-100'>
     <div className='p-3 rounded w-25 border'>
         <h2>Sign Up</h2>
+        <p className='text-danger'> {message} </p>
         <form onSubmit={handleSubmit}>
             <div className='mb-3'>
                 <label htmlFor="name"><strong>User Name</strong></label>

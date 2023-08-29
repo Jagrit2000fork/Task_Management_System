@@ -4,7 +4,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import bycrypt, { hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
+import {Server} from 'socket.io'
 const app=express();
 app.use(cors({
     origin:["http://localhost:5173"],
@@ -17,7 +17,7 @@ app.use(express.json());
 const con=mysql.createConnection({
     host:"localhost",
     user: "root",
-    password:"",
+    password:"Iw@nt2die",
     database:"users"
 })
 
@@ -82,19 +82,30 @@ app.get('/read/:id',(req,res)=>{
     })
 })
 app.post('/signup', (req,res) =>{
-    const sql = "INSERT INTO user Values (default,?)";
-    bycrypt.hash(req.body.password,10,(err,hash)=>{
-        if(err) return res.json({Error:"Error in hashing password"});
-        const values = [
-            req.body.name,
-            req.body.email,
-            hash
-        ]
-        con.query(sql, [values], (err,data) => {
-            if(err) return res.json(err);
-            return res.json({Status: "Success"});
-        })
-    })
+    const find="SELECT * FROM user WHERE email=?";
+    con.query(find,[req.body.email],(err,result)=>{
+        if(err) return res.json({Status:"Error",Error:"Login Error in Server"})
+        if(result.length>0){
+            return res.json({Status:"Already"})
+        }
+        else{
+            const sql = "INSERT INTO user Values (default,?)";
+            bycrypt.hash(req.body.password,10,(err,hash)=>{
+                if(err) return res.json({Error:"Error in hashing password"});
+                const values = [
+                    req.body.name,
+                    req.body.email,
+                    hash
+                ]
+                con.query(sql, [values], (err,data) => {
+                    if(err) return res.json(err);
+                    return res.json({Status: "Success"});
+                })
+            })
+        }
+       })
+    // Border Line Here
+   
 })
 app.post('/login',(req,res)=> {
    const sql='SELECT * FROM user WHERE email=?';
@@ -146,3 +157,18 @@ app.get('/logout',(req,res)=>{
 app.listen(8081,()=>{
     console.log("Running");
 })
+const io=new Server({
+    pingTimeout:60000,
+    cors:{
+        origin:"http://localhost:5173"
+    }
+})
+
+io.on("connection",(socket)=>{
+    console.log("someone is connected");
+    io.emit("Notification","Hello this is test");
+    socket.on("disconnect",()=>{
+        console.log("someone has left");
+    })
+})
+io.listen(5000);
